@@ -1,0 +1,59 @@
+---
+- name: Restore configs from repo (with backups)
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+
+  vars:
+    repo_dir: "{{ playbook_dir | dirname }}/files"
+    backup_dir: "{{ playbook_dir | dirname }}/backups/{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}"
+
+    configs:
+      - { src: "bashrc", dest: "~/.bashrc" }
+      - { src: "zshrc", dest: "~/.zshrc" }
+      - { src: "oh-my-zsh", dest: "~/.oh-my-zsh" }
+      - { src: "nvim/init.vim", dest: "~/.config/nvim/init.vim" }
+      - { src: "gitconfig", dest: "~/.gitconfig" }
+      - { src: "taskwarrior/.task", dest: "~/.task" }
+
+  tasks:
+    - name: Ensure required packages are installed
+      become: true
+      ansible.builtin.package:
+        name:
+          - neovim
+          - zsh
+          - git
+          - taskwarrior
+        state: present
+
+    - name: Ensure destination directories exist
+      ansible.builtin.file:
+        path: "{{ item.dest | expanduser | dirname }}"
+        state: directory
+      loop: "{{ configs }}"
+
+    - name: Ensure backup directory exists
+      ansible.builtin.file:
+        path: "{{ backup_dir }}"
+        state: directory
+
+    - name: Backup existing config files/directories if present
+      ansible.builtin.copy:
+        src: "{{ item.dest | expanduser }}"
+        dest: "{{ backup_dir }}/{{ item.dest | expanduser | basename }}"
+        remote_src: true
+      loop: "{{ configs }}"
+      ignore_errors: true
+      when: item.dest is exists
+
+    - name: Restore config files and directories from repo
+      ansible.builtin.copy:
+        src: "{{ repo_dir }}/{{ item.src }}"
+        dest: "{{ item.dest | expanduser }}"
+        mode: preserve
+        backup: no
+      loop: "{{ configs }}"
+      when: item.src is file or item.src is directory
+

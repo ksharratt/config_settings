@@ -1,0 +1,32 @@
+---
+- name: Backup existing configs into repo
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    repo_dir: "{{ playbook_dir | dirname }}/files"
+
+    configs:
+      - { src: "~/.bashrc", dest: "bashrc" }
+      - { src: "~/.zshrc", dest: "zshrc" }
+      - { src: "~/.oh-my-zsh", dest: "oh-my-zsh" }
+      - { src: "~/.config/nvim/init.vim", dest: "nvim/init.vim" }
+      - { src: "~/.gitconfig", dest: "gitconfig" }
+      - { src: "~/.task", dest: "taskwarrior/.task" }
+
+  tasks:
+    - name: Ensure destination directories exist
+      ansible.builtin.file:
+        path: "{{ repo_dir }}/{{ item.dest | dirname }}"
+        state: directory
+      loop: "{{ configs }}"
+
+    - name: Backup existing config files/directories
+      ansible.builtin.copy:
+        src: "{{ item.src | expanduser }}"
+        dest: "{{ repo_dir }}/{{ item.dest }}"
+        remote_src: true
+      loop: "{{ configs }}"
+      ignore_errors: true
+

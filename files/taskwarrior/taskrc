@@ -1,0 +1,100 @@
+# [Created by task 2.6.2 10/12/2025 14:53:25]
+# Taskwarrior program configuration file.
+# For more documentation, see https://taskwarrior.org or try 'man task', 'man task-color',
+# 'man task-sync' or 'man taskrc'
+
+# Here is an example of entries that use the default, override and blank values
+#   variable=foo   -- By specifying a value, this overrides the default
+#   variable=      -- By specifying no value, this means no default
+#   #variable=foo  -- By commenting out the line, or deleting it, this uses the default
+
+# You can also refence environment variables:
+#   variable=$HOME/task
+#   variable=$VALUE
+
+# Use the command 'task show' to see all defaults and overrides
+
+rc.color=on
+rc.color.use_256=true
+
+# Files
+data.location=/home/ksharratt/.task
+
+# To use the default location of the XDG directories,
+# move this configuration file from ~/.taskrc to ~/.config/task/taskrc and uncomment below
+
+#data.location=~/.local/share/task
+hooks.location=~/.config/task/hooks
+
+# Color theme (uncomment one to use)
+#include light-16.theme
+#include light-256.theme
+#include dark-16.theme
+#include dark-256.theme
+#include dark-red-256.theme
+#include dark-green-256.theme
+include dark-blue-256.theme
+#include dark-violets-256.theme
+#include dark-yellow-green.theme
+#include dark-gray-256.theme
+#include dark-gray-blue-256.theme
+#include solarized-dark-256.theme
+#include solarized-light-256.theme
+#include no-color.theme
+
+
+# Optional UDAs for habit meta (you can add these now or later)
+uda.streak.type=numeric
+uda.streak.label=Streak
+
+# Habit-only report
+report.habits.description     = Habit tasks
+report.habits.columns         = id,project,description,due,recur,streak
+report.habits.labels          = ID,Project,Description,Due,Recur,Streak
+report.habits.sort            = due+,project+,urgency-
+report.habits.filter          = due:today and project:habits
+report.habits.context'       = context:habits
+context.work.read=project:work
+context.work.write=project:work
+context.personal.read=project:personal
+context.personal.write=project:personal
+context.today.read=(due.before:tomorrow or scheduled.before:tomorrow) status:pending
+context.today.write=(due.before:tomorrow or scheduled.before:tomorrow) status:pending
+context.habits.read=project:habits
+context.habits.write=project:habits
+context.learn.read=project:learn
+context.learn.write=project.learn
+context.exercise.read=project:exercise
+context.exercise.write=project:exercise
+
+# One Dark inspired theme for Taskwarrior / taskwarrior-tui
+# background ≈ #282C34  foreground ≈ #ABB2BF
+
+# General UI
+color.header                 = bold cyan
+color.footnote               = gray10
+color.alternate              = on gray8
+color.label                  = cyan
+color.overdue                = bold red
+color.due.today              = bold yellow
+color.blocked                = on gray10
+color.sync                   = blue
+color.active                 = bold white on gray10
+
+# Projects & tags
+color.project.none           = white
+color.project.work           = blue
+color.project.habits         = gray23
+color.tag.+urgent            = bold white on red
+color.tag.+habit             = gray23
+color.priority.H             = bold red
+color.priority.M             = bold yellow
+color.priority.L             = green
+
+# Table headers
+color.alternate.header       = bold gray12
+
+recurrence.indicator=off
+recurrence.limit=1
+news.version=3.4.1
+context=exercise

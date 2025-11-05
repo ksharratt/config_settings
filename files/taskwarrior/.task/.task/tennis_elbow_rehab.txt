@@ -1,0 +1,27 @@
+# ================================
+# PHASE 1 – Pain Management & Activation (Week 1–2)
+# ================================
+
+task add project:exercise.rehab due:tomorrow recur:daily until:2025-10-23 description:"Wrist extensor isometric holds – 3×30 sec, pain-free intensity 2/10 max" tags:tennis_elbow,phase1
+task add project:exercise.rehab due:tomorrow recur:daily until:2025-10-23 description:"Wrist flexion/extension with light dumbbell (0.5–1 kg) – 2×15 each, control only" tags:tennis_elbow,phase1
+task add project:exercise.rehab due:tomorrow recur:daily until:2025-10-23 description:"Forearm pronation/supination with hammer handle – 2×15 each, no pain" tags:tennis_elbow,phase1
+task add project:exercise.rehab due:tomorrow recur:daily until:2025-10-23 description:"Gentle grip squeeze (towel or soft ball) – 3×10, sub-max effort" tags:tennis_elbow,phase1
+task add project:exercise.rehab due:tomorrow recur:daily until:2025-10-23 description:"Ice or massage 10 min post-exercise if soreness" tags:tennis_elbow,phase1
+
+# ================================
+# PHASE 2 – Load Tolerance & Eccentric Strength (Week 3–4)
+# Start: 2025-10-24
+# ================================
+task add project:exercise.rehab due:2025-10-24 recur:daily until:2025-11-06 description:"Eccentric wrist extensor curls – 3×10 (2 s down, assist up), pain-free" tags:tennis_elbow,phase2
+task add project:exercise.rehab due:2025-10-24 recur:daily until:2025-11-06 description:"Wrist pronation/supination control – 3×15 each with slightly heavier lever" tags:tennis_elbow,phase2
+task add project:exercise.rehab due:2025-10-24 recur:daily until:2025-11-06 description:"Isometric elbow extension (light band) – 3×20 sec holds, 2/10 pain max" tags:tennis_elbow,phase2
+task add project:exercise.rehab due:2025-10-24 recur:daily until:2025-11-06 description:"Light landmine press (½-kneel) – 3×10 each arm, stop if pain >2/10" tags:tennis_elbow,phase2
+task add project:exercise.rehab due:2025-10-24 recur:daily until:2025-11-06 description:"Check pain next morning; regress if soreness > mild" tags:tennis_elbow,phase2
+
+# ================================
+# WEEKLY MONITORING & PROGRESSION
+# ================================
+task add project:exercise.rehab due:tomorrow recur:weekly until:2025-11-06 description:"Log pain score (0–10) and grip strength comparison both sides" tags:tennis_elbow,monitor
+task add project:exercise.rehab due:tomorrow recur:weekly until:2025-11-06 description:"Review readiness to progress: no pain at rest, <2/10 with exercise" tags:tennis_elbow,monitor
+task add project:exercise.rehab due:2025-11-07 description:"Phase 3 readiness check – test light overhead press (pain-free 3×10)" tags:tennis_elbow,phase3
+

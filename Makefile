@@ -4,10 +4,12 @@
 #   make init PYTHON_VERSION=3.11 # Choose Python version
 #   make init PKGS="ansible pytest black"  # Add more packages
 
+include Makefile.ansible
+
 SHELL := /bin/bash
 
 PYTHON_VERSION ?= 3.12
-PKGS ?= ansible
+PKGS ?= requirements.txt
 
 .PHONY: init check_uv ensure_python venv install show-test
 
