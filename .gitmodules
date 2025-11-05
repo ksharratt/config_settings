@@ -1,0 +1,3 @@
+[submodule "external/ansible-uv"]
+	path = external/ansible-uv
+	url = https://github.com/moreati/ansible-uv.git
