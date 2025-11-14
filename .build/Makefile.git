@@ -1,0 +1,8 @@
+# these setting should only be used in a personal build not a work environment build
+# create a branch of make commands for personal would make the most sense here.
+#
+# user.email=keith.sharratt@gmail.com
+# user.name=Keith Sharratt
+#
+# This will work with Git for windows installation for git credential manager
+# credential.helper=/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-wincred.exe
