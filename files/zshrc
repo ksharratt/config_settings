@@ -92,3 +92,6 @@ export EDITOR=nvim
 export PATH="/snap/bin:/var/lib/snapd/snap/bin:$PATH"
 
 bindkey '^[[Z' forward-char
+
+eval "$(uv generate-shell-completion zsh)"
+eval "$(uvx --generate-shell-completion zsh)"

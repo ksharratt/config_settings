@@ -1,0 +1,74 @@
+# --- Logging config ---
+export LOG_DIR=~/session_logs
+export CLEAN_DIR="$LOG_DIR/clean"
+mkdir -p "$LOG_DIR" "$CLEAN_DIR"
+
+alias log="script $LOG_DIR/snippet_$(date +%Y%m%d_%H%M%S).log"
+
+alias cleanlogs='for f in "$LOG_DIR"/*.log; do \
+  [ -r "$f" ] || { echo "Cannot read $f"; continue; }; \
+  base=$(basename "$f"); \
+  cat "$f" | ansifilter > "$CLEAN_DIR/${base%.log}_clean.log" && rm "$f"; \
+done'
+
+# --- cheat-sheet config ---
+CHEATS_DIR="${HOME}/.config/cheats"
+mkdir -p "${CHEATS_DIR}"
+
+cheat() {
+  local dir="${CHEATS_DIR}"
+  local query="$1"
+
+  if command -v fzf >/dev/null 2>&1; then
+    local file
+    if [[ -n "$query" ]]; then
+      # Find best match using fzf in non-interactive mode
+      file="$(printf '%s\n' "$dir"/*.md | fzf --filter="$query" --select-1 --exit-0)"
+    else
+      # Interactive mode
+      file="$(printf '%s\n' "$dir"/*.md | fzf --prompt='cheat> ' --height=40%)"
+    fi
+
+    [[ -n "$file" ]] && bat --style=plain --paging=never --color=always -- "$file"
+  else
+    echo "fzf not installed. Please install fzf."
+  fi
+}
+
+alias kb='cheat'
+
+
+# --- doing script --- 
+#
+# for simple tracking with taskwarrior
+#
+doing() {
+
+    # Stop any currently active task
+    task +ACTIVE stop
+
+    # Add a new task and capture its ID (strip the trailing '.')
+    if [ -n "$TW_ACTIVE_PROJ" ]; then
+        task_id=$(task add "$*" proj:"$TW_ACTIVE_PROJ" | awk '/Created task/{gsub(/\./,"",$3); print $3}')
+    else
+        task_id=$(task add "$*" | awk '/Created task/{gsub(/\./,"",$3); print $3}')
+    fi
+
+    # Start the new task
+    [ -n "$task_id" ] && task "$task_id" start
+}
+
+tproj() {
+    export TW_ACTIVE_PROJ="$*"
+    echo "Active project set to: $TW_ACTIVE_PROJ"
+}
+
+alias d='doing'
+
+# Exports
+export UV_NATIVE_TLS=true
+
+
+# --- Aliases ---
+alias vi=nvim
+alias bat=batcat

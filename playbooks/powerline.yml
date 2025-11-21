@@ -1,0 +1,35 @@
+---
+- name: Install Powerline for Zsh
+  hosts: localhost
+  become: false
+  vars:
+    powerline_fonts_repo: "https://github.com/powerline/fonts.git"
+    powerline_fonts_dir: "/tmp/fonts"
+    home_dir: "/home/d655605"
+
+  tasks:
+    - name: Debug
+      debug:
+        msg: "{{ home_dir }}"
+
+    - name: Install powerline as a global tool with uv
+      ansible.builtin.apt: uv tool install powerline-status --native-tls
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/home/d655605/.local/bin"
+
+    - name: Clone Powerline fonts repository
+      git:
+        repo: "{{ powerline_fonts_repo }}"
+        dest: "{{ powerline_fonts_dir }}"
+        depth: 1
+
+    - name: Install Powerline fonts
+      shell: ./install.sh
+      args:
+        chdir: "{{ powerline_fonts_dir }}"
+
+    - name: Configure Zsh to use Powerline
+      lineinfile:
+        path: "{{ home_dir }}/.zshrc"
+        line: 'source $HOME/powerline-env/bin/powerline.sh'
+        insertafter: EOF

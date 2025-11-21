@@ -3,8 +3,12 @@ filetype plugin on
 syntax on
 
 autocmd FileType vimwiki setlocal conceallevel=2 concealcursor=nvc
+autocmd FileType make setlocal noexpandtab tabstop=4 shiftwidth=4
 
 call plug#begin('~/.vim/plugged')
+
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
 Plug 'vimwiki/vimwiki'
 

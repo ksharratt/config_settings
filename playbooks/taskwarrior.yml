@@ -1,0 +1,65 @@
+---
+- name: Setup Taskwarrior and Timewarrior
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Install Taskwarrior
+      apt:
+        name: taskwarrior
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install Timewarrior
+      apt:
+        name: timewarrior
+        state: present
+      when: ansible_os_family == "Debian"
+
+
+    - name: Fetch latest Taskwarrior-TUI release metadata
+      uri:
+        url: "https://api.github.com/repos/kdheepak/taskwarrior-tui/releases/latest"
+        return_content: yes
+      register: release_info
+
+
+
+    - name: Set latest tarball URL for Linux x86_64
+        set_fact:
+          latest_asset_url: "{{ release_info.json.assets | selectattr('name', 'search', 'linux') | selectattr('name', 'search', 'tar.gz') | map(attribute='browser_download_url') | first }}"
+
+
+    - name: Download Taskwarrior-TUI tarball
+      get_url:
+        url: "{{ latest_asset_url }}"
+        dest: "/tmp/taskwarrior-tui.tar.gz"
+        mode: '0644'
+
+    - name: Create directory
+      ansible.builtin.file:
+        path: "/usr/local/bin/taskwarrior-tui" 
+        state: directory
+        mode: '0755'
+
+    - name: Extract Taskwarrior-TUI binary
+      unarchive:
+        src: "/tmp/taskwarrior-tui.tar.gz"
+        dest: "/usr/local/bin/taskwarrior-tui"
+        remote_src: true
+
+    - name: Make Taskwarrior-TUI executable
+      file:
+        path: /usr/local/bin/taskwarrior-tui
+        mode: '0755'
+
+          
+    - name: Verify Taskwarrior-TUI runs
+      command: /usr/local/bin/taskwarrior-tui --version
+      register: tui_version
+      changed_when: false
+
+    - name: Display Taskwarrior-TUI version
+      debug:
+        msg: "Installed Taskwarrior-TUI version: {{ tui_version.stdout }}"
+

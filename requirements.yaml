@@ -1,0 +1,3 @@
+collections:
+  - name: moreati.ansible_uv
+    source: https://galaxy.ansible.com

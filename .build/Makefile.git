@@ -1,0 +1,30 @@
+.PHONY: git git-config
+
+git: git-config git-alias
+
+git-config:
+	@if [ "$(shell git config --get push.autoSetupRemote)" != "true" ]; then \
+		echo "Setting push.autoSetupRemote to true..."; \
+		git config --global push.autoSetupRemote true; \
+	else \
+		echo "push.autoSetupRemote is already set to true."; \
+	fi
+	@if [ "$(shell git config --get --global core.autocrlf input)" != "input" ]; then \
+		echo "Enabling new line normalisation to \\n..."; \
+		git config --global core.autocrlf input; \
+	else \
+		echo "global core.autocrlf input is already enabled."; \
+	fi
+
+
+git-alias:
+	@git config --global alias.squash-clean '!f() { \
+      if [ -z "$$1" ]; then echo "Usage: git squash-clean \"commit message\""; exit 1; fi; \
+      git fetch origin && \
+      git reset $$(git merge-base HEAD origin/master) && \
+      git add -A && \
+      git commit -m "$$1" && \
+      git rebase origin/master && \
+      git log --oneline --graph --decorate -n 10; \
+    }; f'
+

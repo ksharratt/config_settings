@@ -1,0 +1,40 @@
+# --- cheat-sheet config ---
+CHEATS_DIR="${HOME}/.config/cheats"
+mkdir -p "${CHEATS_DIR}"
+
+# default file
+[ -f "${CHEATS_DIR}/keybinds.md" ] || cat > "${CHEATS_DIR}/keybinds.md" <<'EOF'
+# Keybinds Cheat-Sheet
+
+## tmux
+Prefix: C-b
+Split vertical: %
+Split horizontal: "
+Pane navigation: C-b + arrows
+
+## vim
+Write & quit: :wq
+Next buffer: :bn
+Prev buffer: :bp
+
+## bash/zsh
+Cd up: alias ..='cd ..'; alias ...='cd ../..'
+EOF
+
+cheat() {
+  local dir="${CHEATS_DIR}"
+  if command -v fzf >/dev/null 2>&1; then
+    local file
+    file="$(ls "${dir}"/*.md 2>/dev/null | fzf --prompt='cheat> ' --height=40%)" || return
+    less -R "${file}"
+  else
+    if [ -z "$1" ]; then
+      less -R "${dir}/keybinds.md"
+    else
+      grep -Rni --color=always "$1" "${dir}" | less -R
+    fi
+  fi
+}
+
+alias kb='cheat'
+
