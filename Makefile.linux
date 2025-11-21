@@ -1,0 +1,11 @@
+
+.PHONY: install_fzf
+
+install_fzf:
+	@command -v fzf >/dev/null 2>&1 || { \
+		echo "Installing fzf ...."; \
+		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; \
+		~/.fzf/install; \
+		source ~/.zshrc; \
+		}
+	@echo "✅ fzf is installed."

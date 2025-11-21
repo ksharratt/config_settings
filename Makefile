@@ -5,12 +5,18 @@
 #   make init PKGS="ansible pytest black"  # Add more packages
 
 BUILD_DIR = .build
+<<<<<<< HEAD
 
 include $(BUILD_DIR)/Makefile.ansible
 include $(BUILD_DIR)/Makefile.git
 include $(BUILD_DIR)/Makefile.cheats
 include $(BUILD_DIR)/Makefile.zsh
 
+=======
+
+#include $(BUILD_DIR)/Makefile.ansible
+include $(BUILD_DIR)/Makefile.scripts
+>>>>>>> refs/remotes/origin/master
 
 PYTHON_VERSION ?= 3.12
 PKGS ?= requirements.txt
