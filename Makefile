@@ -5,18 +5,12 @@
 #   make init PKGS="ansible pytest black"  # Add more packages
 
 BUILD_DIR = .build
-<<<<<<< HEAD
 
 include $(BUILD_DIR)/Makefile.ansible
 include $(BUILD_DIR)/Makefile.git
 include $(BUILD_DIR)/Makefile.cheats
 include $(BUILD_DIR)/Makefile.zsh
-
-=======
-
-#include $(BUILD_DIR)/Makefile.ansible
 include $(BUILD_DIR)/Makefile.scripts
->>>>>>> refs/remotes/origin/master
 
 PYTHON_VERSION ?= 3.12
 PKGS ?= requirements.txt
@@ -35,7 +29,7 @@ check_uv:
 
 ensure_python:
 	@echo "🔎 Ensuring Python $(PYTHON_VERSION) is available via uv..."
-	@uv python install $(PYTHON_VERSION) >/dev/null
+	@uv --native-tls python install $(PYTHON_VERSION) >/dev/null
 	@echo "✅ Python $(PYTHON_VERSION) available."
 
 venv:
@@ -45,7 +39,7 @@ venv:
 
 install:
 	@echo "📥 Installing packages into .venv: $(PKGS)"
-	@uv pip install $(PKGS)
+	@uv --native-tls pip install $(PKGS)
 	@echo "✅ Packages installed."
 
 show-test:
