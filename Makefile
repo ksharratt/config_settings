@@ -11,13 +11,14 @@ include $(BUILD_DIR)/Makefile.git
 include $(BUILD_DIR)/Makefile.cheats
 include $(BUILD_DIR)/Makefile.zsh
 include $(BUILD_DIR)/Makefile.scripts
+include $(BUILD_DIR)/Makefile.linux
 
 PYTHON_VERSION ?= 3.12
 PKGS ?= requirements.txt
 
 .PHONY: init check_uv ensure_python venv install show-test
 
-init: check_uv ensure_python venv install show-test
+init: check_uv ensure_python venv install sys-tools show-test
 	@echo "✅ Environment ready with Python $(PYTHON_VERSION)."
 
 check_uv:
