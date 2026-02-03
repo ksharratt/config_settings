@@ -15,6 +15,22 @@ git-config:
 	else \
 		echo "global core.autocrlf input is already enabled."; \
 	fi
+	
+	@# Add 'lg' alias: compact graph view (no implicit -n to allow custom limits)
+	@if [ "$$(git config --global --get alias.lg)" != "log --oneline --graph --decorate -n 15" ]; then \
+		echo "Adding alias lg -> 'log --oneline --graph --decorate -n 15'..."; \
+		git config --global alias.lg "log --oneline --graph --decorate -n 15"; \
+	else \
+		echo "alias lg already set."; \
+	fi
+	@# Optional: 'lgs' shows stats too
+	@if [ "$$(git config --global --get alias.lgs)" != "log --oneline --graph --decorate -n 10 --stat" ]; then \
+		echo "Adding alias lgs -> 'log --oneline --graph --decorate -n 10 --stat'..."; \
+        	git config --global alias.lgs "log --oneline --graph --decorate -n 10 --stat"; \
+	else \
+		echo "alias lgs already set."; \
+	fi
+
 
 
 git-alias:
