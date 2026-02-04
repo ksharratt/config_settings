@@ -6,12 +6,13 @@
 
 BUILD_DIR = .build
 
-include $(BUILD_DIR)/Makefile.ansible
-include $(BUILD_DIR)/Makefile.git
-include $(BUILD_DIR)/Makefile.cheats
-include $(BUILD_DIR)/Makefile.zsh
-include $(BUILD_DIR)/Makefile.scripts
-include $(BUILD_DIR)/Makefile.linux
+include $(BUILD_DIR)/Makefile.ansible.mk
+include $(BUILD_DIR)/Makefile.git.mk
+include $(BUILD_DIR)/Makefile.cheats.mk
+include $(BUILD_DIR)/Makefile.zsh.mk
+include $(BUILD_DIR)/Makefile.scripts.mk
+include $(BUILD_DIR)/Makefile.linux.mk
+include $(BUILD_DIR)/Makefile.glow.mk
 
 PYTHON_VERSION ?= 3.12
 PKGS ?= requirements.txt

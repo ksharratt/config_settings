@@ -2,7 +2,7 @@
 .PHONY: sys-tools
 
 
-sys-tools: apt-update install-bat install-ansifilter install-neovim install-fzf 
+sys-tools: apt-update install-bat install-ansifilter install-neovim install-fzf install-glow
 
 apt-update:
 	@sudo apt-get update
@@ -36,3 +36,4 @@ install-fzf:
 		source ~/.zshrc; \
 		}
 	@echo "✅ fzf is installed."
+
