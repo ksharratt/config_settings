@@ -1,0 +1,9 @@
+#!/bin/sh
+# pre-commit: warn if current branch is behind origin/master and show diff.
+
+set -euo pipefail
+
+HOOK_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+. "$HOOK_DIR/lib/drift_check.sh"
+
+exit 0

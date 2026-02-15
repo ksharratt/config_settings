@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+HOOK_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+
+. "$HOOK_DIR/lib/drift_check.sh"
+. "$HOOK_DIR/lib/ansible-lint-changes.sh"
+
+exit 0

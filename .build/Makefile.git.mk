@@ -1,6 +1,9 @@
+DST_HOOKS_DIR := $(HOME)/.config/git/hooks
+SRC_HOOKS_DIR := files/git/hooks
+
 .PHONY: git git-config
 
-git: git-config git-alias
+git: git-config git-alias git-hooks
 
 git-config:
 	@if [ "$(shell git config --get push.autoSetupRemote)" != "true" ]; then \
@@ -17,8 +20,6 @@ git-config:
 		echo "global core.autocrlf input is already enabled."; \
 	fi
 	
-
-
 	@# Ensure core.excludesfile points to ~/.gitignore_global
 	@if [ "$$(git config --global --get core.excludesfile)" != "$$HOME/.gitignore_global" ]; then \
 	echo "Configuring core.excludesfile -> $$HOME/.gitignore_global ..."; \
@@ -26,7 +27,6 @@ git-config:
 	else \
 		echo "core.excludesfile already points to $$HOME/.gitignore_global."; \
 	fi
-
 
 	@# Copy repo version to ~/ if ~/ does not exist OR is different
 	@if [ -f files/git/.gitignore_global ]; then \
@@ -43,20 +43,44 @@ git-config:
 		echo "No files/git/.gitignore_global found in this repo — skipping copy."; \
 	fi
 
+git-hooks:
+	@# Add global git hooks path
+	@if [ "$$(git config --global --get core.hookspath)" != "$(DST_HOOKS_DIR)" ]; then \
+	echo "Configuring core.hookspath -> $(DST_HOOKS_DIR) ..."; \
+		git config --global core.hookspath $(DST_HOOKS_DIR); \
+	else \
+		echo "core.hookspath already points to $(DST_HOOKS_DIR)"; \
+	fi
+
+	@echo "Copying hooks into $(DST_HOOKS_DIR)..."
+	@mkdir -p "$(DST_HOOKS_DIR)"
+	@for f in $(SRC_HOOKS_DIR)/*; do \
+		dst="$(DST_HOOKS_DIR)/$${f##*/}"; \
+		if [ ! -e "$$dst" ]; then \
+			echo "  -> Installing $${f##*/}"; \
+			install -m 0755 "$$f" "$$dst"; \
+		elif ! cmp -s "$$f" "$$dst"; then \
+			echo "  -> Updating  $${f##*/} (changed)"; \
+			install -m 0755 "$$f" "$$dst"; \
+		else \
+			echo "  -> Skipping  $${f##*/} (unchanged)"; \
+		fi; \
+	done
+	@echo "Done."
 
 
 
 
 git-alias:
 	@git config --global alias.squash-clean '!f() { \
-      if [ -z "$$1" ]; then echo "Usage: git squash-clean \"commit message\""; exit 1; fi; \
-      git fetch origin && \
-      git reset $$(git merge-base HEAD origin/master) && \
-      git add -A && \
-      git commit -m "$$1" && \
-      git rebase origin/master && \
-      git log --oneline --graph --decorate -n 10; \
-    }; f'
+	  if [ -z "$$1" ]; then echo "Usage: git squash-clean \"commit message\""; exit 1; fi; \
+	  git fetch origin && \
+	  git reset $$(git merge-base HEAD origin/master) && \
+	  git add -A && \
+	  git commit -m "$$1" && \
+	  git rebase origin/master && \
+	  git log --oneline --graph --decorate -n 10; \
+	}; f'
 
 	@# Add 'lg' alias: compact graph view (no implicit -n to allow custom limits)
 	@if [ "$$(git config --global --get alias.lg)" != "log --oneline --graph --decorate -n 15" ]; then \
@@ -69,7 +93,7 @@ git-alias:
 	@# Optional: 'lgs' shows stats too
 	@if [ "$$(git config --global --get alias.lgs)" != "log --oneline --graph --decorate -n 10 --stat" ]; then \
 		echo "Adding alias lgs -> 'log --oneline --graph --decorate -n 10 --stat'..."; \
-        	git config --global alias.lgs "log --oneline --graph --decorate -n 10 --stat"; \
+			git config --global alias.lgs "log --oneline --graph --decorate -n 10 --stat"; \
 	else \
 		echo "alias lgs already set."; \
 	fi
