@@ -55,7 +55,9 @@ git-hooks:
 	@echo "Copying hooks into $(DST_HOOKS_DIR)..."
 	@mkdir -p "$(DST_HOOKS_DIR)"
 	@for f in $(SRC_HOOKS_DIR)/*; do \
+  		[ -f "$$f" ] || continue; \
 		dst="$(DST_HOOKS_DIR)/$${f##*/}"; \
+		\
 		if [ ! -e "$$dst" ]; then \
 			echo "  -> Installing $${f##*/}"; \
 			install -m 0755 "$$f" "$$dst"; \
@@ -66,6 +68,17 @@ git-hooks:
 			echo "  -> Skipping  $${f##*/} (unchanged)"; \
 		fi; \
 	done
+
+	@# 2) Copy/update lib/ recursively (if it exists)
+	@if [ -d "$(SRC_HOOKS_DIR)/lib" ]; then \
+        echo "  -> Syncing   lib/"; \
+        mkdir -p "$(DST_HOOKS_DIR)/lib"; \
+        ( cd "$(SRC_HOOKS_DIR)" && tar cf - lib ) | ( cd "$(DST_HOOKS_DIR)" && tar xf - ); \
+        find "$(DST_HOOKS_DIR)/lib" -type f -name '*.sh' -exec chmod 0755 {} \; ; \
+    else \
+        echo "  -> No lib/ directory found, skipping"; \
+    fi
+
 	@echo "Done."
 
 

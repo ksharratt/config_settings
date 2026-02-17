@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # pre-commit: warn if current branch is behind origin/master and show diff.
 
 set -euo pipefail
