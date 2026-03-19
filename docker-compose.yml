@@ -1,7 +1,20 @@
-version: '3'
+version: "3"
+
 services:
-excalidraw:
-image: excalidraw/excalidraw:latest
-ports:
-- "8080:80"
-restart: on-failure
+  excalidraw:
+    image: excalidraw/excalidraw:latest
+    restart: on-failure
+    ports:
+      - "8080:80"
+
+  gollum:
+    image: gollumwiki/gollum:6
+    restart: always
+    ports:
+      - "4567:4567" # change the first port number to expose Gollum on a different port on the host
+    volumes:
+      # - ${PWD}/config.rb:/etc/gollum/config.rb # if using config.rb in your current directory
+      - ${PWD}/wikidata:/wiki # with your repository in the 'wiki' subdirectory of your current directory
+    command:
+      # - "--config=/etc/gollum/config.rb" # if using config.rb
+      - "--math"

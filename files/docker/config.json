@@ -1,0 +1,9 @@
+{
+  "auths": {
+    "harbor.tools.telstra.com": {}
+  },
+  "_comment": "Credentials are scoped for Harbor, public registries are anonymous, else you will have auth failure on public repos",
+  "credHelpers": {
+    "harbor.tools.telstra.com": "gcm"
+  }
+}

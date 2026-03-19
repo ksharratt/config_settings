@@ -1,3 +1,6 @@
+# --- Configure prompt to show current directory name ---
+PROMPT_COMMAND='printf "\033]0;%s\007" "${PWD##*/}"'
+
 # --- Logging config ---
 export LOG_DIR=~/session_logs
 export CLEAN_DIR="$LOG_DIR/clean"
@@ -5,11 +8,62 @@ mkdir -p "$LOG_DIR" "$CLEAN_DIR"
 
 alias log="script $LOG_DIR/snippet_$(date +%Y%m%d_%H%M%S).log"
 
-alias cleanlogs='for f in "$LOG_DIR"/*.log; do \
-  [ -r "$f" ] || { echo "Cannot read $f"; continue; }; \
-  base=$(basename "$f"); \
-  cat "$f" | ansifilter > "$CLEAN_DIR/${base%.log}_clean.log" && rm "$f"; \
-done'
+cleanlog() {
+  local f="$1"
+
+  if [[ -z "$f" ]]; then
+    echo "Usage: cleanlog <logfile>" >&2
+    return 2
+  fi
+
+  # Require readable file
+  if [[ ! -r "$f" ]]; then
+    echo "Cannot read $f" >&2
+    return 1
+  fi
+
+  # If LOG_DIR/CLEAN_DIR are used elsewhere, keep them.
+  # If not set, default CLEAN_DIR to the file's directory.
+  local log_dir clean_dir
+  log_dir="${LOG_DIR:-$(dirname -- "$f")}"
+  clean_dir="${CLEAN_DIR:-$log_dir}"
+
+  mkdir -p -- "$clean_dir" || return 1
+
+  local base out tmp
+  base="$(basename -- "$f")"
+
+  # Keep your naming convention: foo.log -> foo_clean.log
+  if [[ "$base" == *.log ]]; then
+    out="$clean_dir/${base%.log}_clean.log"
+  else
+    out="$clean_dir/${base}_clean.log"
+  fi
+
+  # Write to a temp file first (avoids partial output if interrupted)
+  tmp="${out}.tmp.$$"
+
+  # Strip CSI/SGR etc. with ansifilter, then strip OSC title sequences (ESC ] ... BEL/ESC\)
+  # Use > (overwrite) rather than >> (append) for single-file clean to avoid duplication.
+  if ansifilter <"$f" | perl -pe 's/\e\][0-9];.*?(\a|\e\\)//g' >"$tmp"; then
+    mv -f -- "$tmp" "$out" && rm -f -- "$f"
+    echo "Cleaned: $f -> $out"
+    return 0
+  else
+    rm -f -- "$tmp"
+    echo "Failed to clean $f" >&2
+    return 1
+  fi
+}
+
+cleanlogs() {
+  shopt -s nullglob
+  local f
+  for f in "$LOG_DIR"/*.log; do
+    cleanlog "$f"
+  done
+}
+
 
 # --- cheat-sheet config ---
 CHEATS_DIR="${HOME}/.config/cheats"
@@ -68,6 +122,137 @@ alias d='doing'
 # Exports
 export UV_NATIVE_TLS=true
 
+
+# --- cbc ssh-to-host helper ---------------------------------------------------------
+ssh-target-picker() {
+  local idx="${1:-1}"   # 1 = first host, 2 = second host, etc.
+  local env="$2"        # e.g. Env_nonprod
+  local site="$3"       # e.g. Site_dev_1
+
+  # Enable debug by exporting DEBUG=1 (or prefixing: DEBUG=1 ssh-target-picker ...)
+  make ansible-list-hosts |
+  awk -v IDX="$idx" -v ENV="@${env}:" -v SITE="@${site}:" -v DEBUG="${DEBUG:-0}" '
+    function dbg(msg) { if (DEBUG == 1) print "DBG: " msg > "/dev/stderr" }
+
+    BEGIN {
+      env_hit=0; site_hit=0; n=0;
+      dbg("BEGIN IDX=" IDX " ENV=" ENV " SITE=" SITE)
+    }
+
+    {
+      # Show every line if you want super noisy debugging:
+      # dbg("LINE: [" $0 "] env_hit=" env_hit " site_hit=" site_hit " n=" n)
+    }
+
+    # Walk down the tree: ENV -> SITE
+    $0 ~ ENV  {
+      env_hit=1; site_hit=0; n=0;
+      dbg("Matched ENV line: [" $0 "] => env_hit=1 site_hit=0 reset n")
+      next
+    }
+
+    env_hit && $0 ~ SITE {
+      site_hit=1; n=0;
+      dbg("Matched SITE line: [" $0 "] => site_hit=1 reset n")
+      next
+    }
+
+    # Host lines are ones with "--<hostname>" and NOT containing "@"
+    site_hit && /--/ && $0 !~ /@/ {
+      line=$0
+      sub(/.*--/, "", line)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+
+      n++
+      dbg("Host candidate #" n ": [" line "] from raw [" $0 "]")
+
+      if (n == IDX) {
+        dbg("SELECTED idx=" IDX " host=[" line "]")
+        print line
+        exit
+      }
+    }
+
+    END {
+      dbg("END env_hit=" env_hit " site_hit=" site_hit " hosts_seen=" n)
+      if (DEBUG == 1 && n < IDX) dbg("WARNING: Requested IDX " IDX " but only saw " n " hosts under SITE.")
+    }
+  '
+}
+
+# ---------------------------------------------------------------------------
+
+mssh() {
+  if (($# < 2)); then
+    echo "Usage: ssh_cbc <app> <env>"
+    return 0
+  fi
+
+  app="$1"
+  env="$2"
+  shift 2
+
+  ########################################
+  # ENV → Site mapping
+  ########################################
+  case "$env" in
+    dev) site="dev_1" ;;
+    pp1) site="preprod_1" ;;
+    pp2) site="preprod_2" ;;
+    preprod_1|preprod_2) site="$env" ;;
+    *)
+      echo "Unknown env: $env" >&2
+      reut
+      ;;
+  esac
+
+  site_re="Site_${site}"
+  echo "$site_re"
+
+  ########################################
+  # APP → selector mapping
+  ########################################
+  case "$app" in
+    cbc)
+      repo="/home/d655605/repos/cbc-manage-instances"
+      ;;
+    em)
+      repo="/home/d655605/repos/em-manage-instances"
+      ;;
+    onboardpwp)
+      repo="/home/d655605/repos/onboardpwp-manage-instances"
+      ;;
+    capgw)
+      repo="/home/d655605/repos/capgw-manage-instances"
+      ;;
+    *)
+      echo "Unknown app: $app" >&2
+      exit 3
+      ;;
+  esac
+
+  ########################################
+  # Connection
+  ########################################
+
+  cd "$repo" || return 3
+
+  local host
+  host="$(ssh-target-picker 1 Env_nonprod "$site_re")" || return 3
+  echo "Host: $host"
+
+  local log_dir="/home/d655605/session_logs"
+  mkdir -p "$log_dir"
+
+  local ts log_file
+  ts="$(date +'%Y%m%d-%H%M%S')"
+  log_file="${log_dir}/cbc-${env}-${host}-${ts}.log"
+
+  # Record the session without breaking TTY
+  script -q -f -a "$log_file" -c "make ssh-to-host LIMIT=${host}"
+  cleanlogs
+
+}
 
 # --- Aliases ---
 alias vi=nvim
