@@ -184,7 +184,7 @@ ssh-target-picker() {
 
 mssh() {
   if (($# < 2)); then
-    echo "Usage: ssh_cbc <app> <env>"
+    echo "Usage: mssh <app> <env>"
     return 0
   fi
 
@@ -225,9 +225,12 @@ mssh() {
     capgw)
       repo="/home/d655605/repos/capgw-manage-instances"
       ;;
+    oam)
+      repo="/home/d655605/repos/oam-manage-instances"
+      ;;
     *)
       echo "Unknown app: $app" >&2
-      exit 3
+      return 3
       ;;
   esac
 
