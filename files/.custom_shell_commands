@@ -184,29 +184,33 @@ ssh-target-picker() {
 
 mssh() {
   if (($# < 2)); then
-    echo "Usage: mssh <app> <env>"
+    echo "Usage:    mssh <app> <env> <num>"
+    echo "Example:  mssh cbc dev 2"
     return 0
   fi
 
   app="$1"
   env="$2"
-  shift 2
+  num="$3"
+  shift 3
 
   ########################################
   # ENV → Site mapping
   ########################################
   case "$env" in
-    dev) site="dev_1" ;;
-    pp1) site="preprod_1" ;;
-    pp2) site="preprod_2" ;;
-    preprod_1|preprod_2) site="$env" ;;
+    dev) site="Site_dev_1" environment="Env_nonprod" ;;
+    pp1) site="Site_preprod_1" environment="Env_nonprod" ;;
+    pp2) site="Site_preprod_2" environment="Env_nonprod" ;;
+    prod1) site="Site_prod_1" environment="Env_prod" ;;
+    prod2) site="Site_prod_2" environment="Env_prod" ;;
+    prod3) site="Site_prod_3" environment="Env_prod" ;;
     *)
       echo "Unknown env: $env" >&2
       reut
       ;;
   esac
 
-  site_re="Site_${site}"
+  site_re="${site}"
   echo "$site_re"
 
   ########################################
@@ -241,7 +245,7 @@ mssh() {
   cd "$repo" || return 3
 
   local host
-  host="$(ssh-target-picker 1 Env_nonprod "$site_re")" || return 3
+  host="$(ssh-target-picker "${num:-1}" "${environment}" "${site_re}")" || return 3
   echo "Host: $host"
 
   local log_dir="/home/d655605/session_logs"
