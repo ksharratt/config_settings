@@ -74,31 +74,40 @@ git-hooks:
 
 	@# 2) Copy/update lib/ recursively (if it exists)
 	@if [ -d "$(SRC_HOOKS_DIR)/lib" ]; then \
-        echo "  -> Syncing   lib/"; \
-        mkdir -p "$(DST_HOOKS_DIR)/lib"; \
-        ( cd "$(SRC_HOOKS_DIR)" && tar cf - lib ) | ( cd "$(DST_HOOKS_DIR)" && tar xf - ); \
-        find "$(DST_HOOKS_DIR)/lib" -type f -name '*.sh' -exec chmod 0755 {} \; ; \
-    else \
-        echo "  -> No lib/ directory found, skipping"; \
-    fi
+	    echo "  -> Syncing   lib/"; \
+	    mkdir -p "$(DST_HOOKS_DIR)/lib"; \
+	    ( cd "$(SRC_HOOKS_DIR)" && tar cf - lib ) | ( cd "$(DST_HOOKS_DIR)" && tar xf - ); \
+	    find "$(DST_HOOKS_DIR)/lib" -type f -name '*.sh' -exec chmod 0755 {} \; ; \
+	else \
+	    echo "  -> No lib/ directory found, skipping"; \
+	fi
 
 	@echo "Done."
 
-
-
 git-alias:
-    @echo "Installing git aliases to $(DST_ALIASES)..."
-    @mkdir -p $(dir $(DST_ALIASES))
-    @cp $(SRC_ALIASES) $(DST_ALIASES)
+	@echo "Installing git aliases to $(DST_ALIASES)..."
+	@mkdir -p "$(dir $(DST_ALIASES))"
 
-    @# ensure include exists only once
-    @if git config --global --get-all include.path | grep -Fxq "$(DST_ALIASES)"; then \
-        echo "Git include already configured."; \
-    else \
-        git config --global --append include.path "$(DST_ALIASES)"; \
-        echo "Added include.path -> $(DST_ALIASES)"; \
-    fi
+	@# Copy only if missing or changed
+	@if [ ! -e "$(DST_ALIASES)" ]; then \
+	    echo "  -> Installing aliases (new)"; \
+	    cp "$(SRC_ALIASES)" "$(DST_ALIASES)"; \
+	elif ! cmp -s "$(SRC_ALIASES)" "$(DST_ALIASES)"; then \
+	    echo "  -> Updating  aliases (changed)"; \
+	    cp "$(SRC_ALIASES)" "$(DST_ALIASES)"; \
+	else \
+	    echo "  -> Skipping  aliases (unchanged)"; \
+	fi
 
+	@# Ensure include.path is configured once
+	@if git config --global --get-all include.path | grep -Fxq "$(DST_ALIASES)"; then \
+	    echo "include.path already set -> $(DST_ALIASES)"; \
+	else \
+	    echo "Configuring include.path -> $(DST_ALIASES)"; \
+	    git config --global --add include.path "$(DST_ALIASES)"; \
+	fi
+
+	@echo "Done."
 
 #git-alias:
 #	@git config --global alias.squash-clean '!f() { \
