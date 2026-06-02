@@ -1,0 +1,13 @@
+# .gitconfig.aliases
+[alias]
+    squash-clean = "!f() { \
+        msg=\"${1:-$(git log -1 --pretty=%B)}\"; \
+        git fetch origin && \
+        git reset $(git merge-base HEAD origin/master) && \
+        git add -A && \
+        git commit -m \"$msg\" && \
+        git rebase origin/master && \
+        git log --oneline --graph --decorate -n 10; \
+    }; f"
+    lg = log --oneline --graph --decorate -n 15
+    lgs = log --oneline --graph --decorate -n 10 --stat

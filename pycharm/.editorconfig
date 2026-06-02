@@ -1,0 +1,10 @@
+root = false
+
+[*]
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{yml,yaml}]
+ij_formatter_keep_blank_lines_in_code = 1
+ij_formatter_keep_blank_lines_in_declarations = 1
+ij_formatter_keep_blank_lines_before_right_brace = 1

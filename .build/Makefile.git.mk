@@ -1,4 +1,7 @@
-DST_HOOKS_DIR := $(HOME)/.config/git/hooks
+GIT_CONFIG_DIR := $(HOME)/.config/git
+DST_ALIASES := $(GIT_CONFIG_DIR)/aliases
+SRC_ALIASES := files/git/.gitconfig.aliases
+DST_HOOKS_DIR := $(GIT_CONFIG_DIR)/hooks
 SRC_HOOKS_DIR := files/git/hooks
 
 .PHONY: git git-config
@@ -19,7 +22,7 @@ git-config:
 	else \
 		echo "global core.autocrlf input is already enabled."; \
 	fi
-	
+
 	@# Ensure core.excludesfile points to ~/.gitignore_global
 	@if [ "$$(git config --global --get core.excludesfile)" != "$$HOME/.gitignore_global" ]; then \
 	echo "Configuring core.excludesfile -> $$HOME/.gitignore_global ..."; \
@@ -83,33 +86,46 @@ git-hooks:
 
 
 
-
 git-alias:
-	@git config --global alias.squash-clean '!f() { \
-	  if [ -z "$$1" ]; then echo "Usage: git squash-clean \"commit message\""; exit 1; fi; \
-	  git fetch origin && \
-	  git reset $$(git merge-base HEAD origin/master) && \
-	  git add -A && \
-	  git commit -m "$$1" && \
-	  git rebase origin/master && \
-	  git log --oneline --graph --decorate -n 10; \
-	}; f'
+    @echo "Installing git aliases to $(DST_ALIASES)..."
+    @mkdir -p $(dir $(DST_ALIASES))
+    @cp $(SRC_ALIASES) $(DST_ALIASES)
 
-	@# Add 'lg' alias: compact graph view (no implicit -n to allow custom limits)
-	@if [ "$$(git config --global --get alias.lg)" != "log --oneline --graph --decorate -n 15" ]; then \
-		echo "Adding alias lg -> 'log --oneline --graph --decorate -n 15'..."; \
-		git config --global alias.lg "log --oneline --graph --decorate -n 15"; \
-	else \
-		echo "alias lg already set."; \
-	fi
+    @# ensure include exists only once
+    @if git config --global --get-all include.path | grep -Fxq "$(DST_ALIASES)"; then \
+        echo "Git include already configured."; \
+    else \
+        git config --global --append include.path "$(DST_ALIASES)"; \
+        echo "Added include.path -> $(DST_ALIASES)"; \
+    fi
 
-	@# Optional: 'lgs' shows stats too
-	@if [ "$$(git config --global --get alias.lgs)" != "log --oneline --graph --decorate -n 10 --stat" ]; then \
-		echo "Adding alias lgs -> 'log --oneline --graph --decorate -n 10 --stat'..."; \
-			git config --global alias.lgs "log --oneline --graph --decorate -n 10 --stat"; \
-	else \
-		echo "alias lgs already set."; \
-	fi
+
+#git-alias:
+#	@git config --global alias.squash-clean '!f() { \
+#	  if [ -z "$$1" ]; then echo "Usage: git squash-clean \"commit message\""; exit 1; fi; \
+#	  git fetch origin && \
+#	  git reset $$(git merge-base HEAD origin/master) && \
+#	  git add -A && \
+#	  git commit -m "$$1" && \
+#	  git rebase origin/master && \
+#	  git log --oneline --graph --decorate -n 10; \
+#	}; f'
+#
+#	@# Add 'lg' alias: compact graph view (no implicit -n to allow custom limits)
+#	@if [ "$$(git config --global --get alias.lg)" != "log --oneline --graph --decorate -n 15" ]; then \
+#		echo "Adding alias lg -> 'log --oneline --graph --decorate -n 15'..."; \
+#		git config --global alias.lg "log --oneline --graph --decorate -n 15"; \
+#	else \
+#		echo "alias lg already set."; \
+#	fi
+#
+#	@# Optional: 'lgs' shows stats too
+#	@if [ "$$(git config --global --get alias.lgs)" != "log --oneline --graph --decorate -n 10 --stat" ]; then \
+#		echo "Adding alias lgs -> 'log --oneline --graph --decorate -n 10 --stat'..."; \
+#			git config --global alias.lgs "log --oneline --graph --decorate -n 10 --stat"; \
+#	else \
+#		echo "alias lgs already set."; \
+#	fi
 
 # these setting should only be used in a personal build not a work environment build
 # create a branch of make commands for personal would make the most sense here.

@@ -92,7 +92,7 @@ cheat() {
 alias kb='cheat'
 
 
-# --- doing script --- 
+# --- doing script ---
 #
 # for simple tracking with taskwarrior
 #
@@ -231,6 +231,9 @@ mssh() {
       ;;
     oam)
       repo="/home/d655605/repos/oam-manage-instances"
+      ;;
+    vault)
+      repo="/home/d655605/repos/vault-manage-instances"
       ;;
     *)
       echo "Unknown app: $app" >&2
