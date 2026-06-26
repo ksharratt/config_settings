@@ -1,0 +1,102 @@
+cmd() {
+  if (($# < 4)); then
+    echo "Usage:    cmd <app> <env> <num> <command>"
+    echo "Example:  cmd vault dev 1 docker ps"
+    return 1
+  fi
+
+  local app="$1"
+  local env="$2"
+  local num="$3"
+  shift 3
+
+  ########################################
+  # ENV → Site mapping
+  ########################################
+
+  local site environment
+
+  case "$env" in
+    dev)   site="Site_dev_1"       environment="Env_nonprod" ;;
+    pp1)   site="Site_preprod_1"  environment="Env_nonprod" ;;
+    pp2)   site="Site_preprod_2"  environment="Env_nonprod" ;;
+    prod1) site="Site_prod_1"     environment="Env_prod" ;;
+    prod2) site="Site_prod_2"     environment="Env_prod" ;;
+    prod3) site="Site_prod_3"     environment="Env_prod" ;;
+    *)
+      echo "Unknown env: $env" >&2
+      return 2
+      ;;
+  esac
+
+  ########################################
+  # APP → repo mapping
+  ########################################
+
+  local repo
+
+  case "$app" in
+    cbc)
+      repo="/home/d655605/repos/cbc-manage-instances"
+      ;;
+    em)
+      repo="/home/d655605/repos/em-manage-instances"
+      ;;
+    onboardpwp)
+      repo="/home/d655605/repos/onboardpwp-manage-instances"
+      ;;
+    capgw)
+      repo="/home/d655605/repos/capgw-manage-instances"
+      ;;
+    oam)
+      repo="/home/d655605/repos/oam-manage-instances"
+      ;;
+    vault)
+      repo="/home/d655605/repos/vault-manage-instances"
+      ;;
+    *)
+      echo "Unknown app: $app" >&2
+      return 3
+      ;;
+  esac
+
+  ########################################
+  # Move into repo
+  ########################################
+
+  cd "$repo" || return 4
+
+  ########################################
+  # Resolve target host
+  ########################################
+
+  local host
+  host="$(ssh-target-picker "$num" "$environment" "$site")" || return 5
+
+  if [[ -z "$host" ]]; then
+    echo "Failed to resolve host" >&2
+    return 6
+  fi
+
+  echo "Host: $host"
+
+########################################
+# Execute command inside container
+########################################
+
+
+
+
+
+  make -s \
+    -f Makefile \
+    -f ~/repos/config_settings/.build/Makefile.cmd.mk \
+    cmd-exec \
+    LIMIT="${host}" \
+    CMD="$*"
+
+
+
+
+
+}
