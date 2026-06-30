@@ -251,16 +251,19 @@ mssh() {
   host="$(ssh-target-picker "${num:-1}" "${environment}" "${site_re}")" || return 3
   echo "Host: $host"
 
-  local log_dir="/home/d655605/session_logs"
-  mkdir -p "$log_dir"
-
-  local ts log_file
-  ts="$(date +'%Y%m%d-%H%M%S')"
-  log_file="${log_dir}/cbc-${env}-${host}-${ts}.log"
+# NOTE: MOVE LOGGING TO TMUX
+#  local log_dir="/home/d655605/session_logs"
+#  mkdir -p "$log_dir"
+#
+#  local ts log_file
+#  ts="$(date +'%Y%m%d-%H%M%S')"
+#  log_file="${log_dir}/cbc-${env}-${host}-${ts}.log"
 
   # Record the session without breaking TTY
-  script -q -f -a "$log_file" -c "make ssh-to-host LIMIT=${host}"
-  cleanlogs
+# script -q -f -a "$log_file" -c "make ssh-to-host LIMIT=${host}"
+#  cleanlog log_file
+
+  make ssh-to-host LIMIT=${host}
 
 }
 

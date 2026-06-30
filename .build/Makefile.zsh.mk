@@ -1,14 +1,20 @@
 # Makefile.zsh — zsh config management
 
-INSTALL_DIR := $(HOME)/
-SOURCE_FILE := ./files/.custom_shell_commands
+INSTALL_DIR        := $(HOME)
+ZSH_SOURCE_DIR     := ./files
 
-zsh: install_custom_shell_commands
+.PHONY: install_custom_shell_commands
 
 install_custom_shell_commands:
-	mkdir -p $(INSTALL_DIR)
-	cp -f $(SOURCE_FILE) $(INSTALL_DIR)/
-
+	@mkdir -p $(INSTALL_DIR)
+	@for f in $(ZSH_SOURCE_DIR)/.custom_shell_commands*; do \
+		[ -f "$$f" ] || continue; \
+		case "$$f" in \
+			*.bak|*~|*.swp) continue ;; \
+		esac; \
+		cp -f "$$f" $(INSTALL_DIR)/ && echo "Installed $$(basename $$f)"; \
+	done; \
+	true
 
 check_powerlevel10k:
 	@command p10k --version >/dev/null 2>&1 || \
@@ -18,4 +24,3 @@ check_powerlevel10k:
 
 
 .PHONY: install_custom_shell_commands check_powerlevel10k
-

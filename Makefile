@@ -13,6 +13,8 @@ include $(BUILD_DIR)/Makefile.zsh.mk
 include $(BUILD_DIR)/Makefile.scripts.mk
 include $(BUILD_DIR)/Makefile.linux.mk
 include $(BUILD_DIR)/Makefile.glow.mk
+include $(BUILD_DIR)/Makefile.tmux.mk
+include $(BUILD_DIR)/MAkefile.powerline.mk
 
 PYTHON_VERSION ?= 3.12
 PKGS ?= requirements.txt
@@ -51,4 +53,3 @@ show-test:
 	@echo "To run Ansible, use:"
 	@echo "  uv run ansible --version"
 	@echo
-

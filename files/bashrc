@@ -116,5 +116,44 @@ if ! shopt -oq posix; then
   fi
 fi
 
+excalidraw() {
+  docker run --rm -dit --name excalidraw -p 5000:80 excalidraw/excalidraw:latest
+}
+
+# local password generator
+genpass() {
+  local l="${1:-16}"
+  local p=""
+  while : ; do
+    p=$(tr -dc '[:print:]' < /dev/urandom | tr -d ' ' | head -c "${l}")
+    if [[ "${p}" =~ [a-z] ]] && [[ "${p}" =~ [A-Z] ]] && [[ "${p}" =~ [0-9] ]] && [[ "${p}" =~ [[:punct:]] ]]; then
+      printf "%s" "${p}"
+      return
+    fi
+  done
+}
+
+# To add branch name and colors:
+distup() {
+  sudo apt-get update
+  sudo apt-get upgrade -y
+  sudo apt-get dist-upgrade -y
+  sudo apt-get autoremove -y
+  sudo apt-get clean -y
+}
+
+if [ -f ~/.cbc_env ]; then
+        . ~/.cbc_env
+fi
+
+for f in ~/.custom_shell_commands*; do
+    case "$f" in
+        *.bak|*~|*.swp) continue ;;
+    esac
+    [ -f "$f" ] && . "$f"
+done
+
 . "$HOME/.local/bin/env"
 . "$HOME/.cargo/env"
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
