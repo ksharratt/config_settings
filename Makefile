@@ -14,7 +14,7 @@ include $(BUILD_DIR)/Makefile.scripts.mk
 include $(BUILD_DIR)/Makefile.linux.mk
 include $(BUILD_DIR)/Makefile.glow.mk
 include $(BUILD_DIR)/Makefile.tmux.mk
-include $(BUILD_DIR)/MAkefile.powerline.mk
+include $(BUILD_DIR)/Makefile.powerline.mk
 
 PYTHON_VERSION ?= 3.12
 PKGS ?= requirements.txt
